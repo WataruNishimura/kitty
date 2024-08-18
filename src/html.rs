@@ -1,7 +1,7 @@
 use crate::dom::{AttrMap, Element, Node};
 use combine::error::ParseError;
 use combine::parser::char::{char, letter, newline, space};
-use combine::{between, many, many1, parser, satisfy, Parser, Stream};
+use combine::{between, many, many1, optional, parser, satisfy, Parser, Stream};
 
 /// `attribute` consumes `name="value"`.
 fn attribute<Input>() -> impl Parser<Input, Output = (String, String)>
@@ -15,7 +15,7 @@ where
     char('='),
     many::<String, _, _>(space().or(newline())),
     between(char('"'), char('"'), many1::<String, _, _>(satisfy(|c: char| c != '"'))),
-  ).map(|v| (v.0, v.4))
+  ).map(|v: (String, String, char, String, String)| (v.0, v.4))
 }
 
 /// `attributes` consumes `name1="value1" name2="value2" ... name="value"`
@@ -24,8 +24,16 @@ where
     Input: Stream<Token = char>,
     Input::Error: ParseError<Input::Token, Input::Range, Input::Position>,
 {
-    todo!("you need to implement this combinator");
-    (char(' ')).map(|_| AttrMap::new())
+    
+    many(attribute().skip(optional(space()))).map(|attr: Vec<(String, String)>| {
+        print!("{:?}", attr);
+        let mut map = AttrMap::new();
+        for (k, v) in attr {
+            map.insert(k, v);
+        }
+        map
+    })
+    
 }
 
 /// `open_tag` consumes `<tag_name attr_name="attr_value" ...>`.
