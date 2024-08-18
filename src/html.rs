@@ -26,7 +26,6 @@ where
 {
     
     many(attribute().skip(optional(space()))).map(|attr: Vec<(String, String)>| {
-        print!("{:?}", attr);
         let mut map = AttrMap::new();
         for (k, v) in attr {
             map.insert(k, v);
