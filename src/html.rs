@@ -26,7 +26,7 @@ where
 {
     
     many(attribute().skip(optional(space()))).map(|attr: Vec<(String, String)>| {
-        let mut map = AttrMap::new();
+        let mut map: std::collections::HashMap<String, String> = AttrMap::new();
         for (k, v) in attr {
             map.insert(k, v);
         }
